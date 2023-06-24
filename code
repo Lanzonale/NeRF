@@ -1,0 +1,47 @@
+!pip install --upgrade pip
+!pip install torch==2.0.1+cu118 torchvision==0.15.2+cu118 --extra-index-url https://download.pytorch.org/whl/cu118
+!pip install tinycudann-1.7-cp310-cp310-linux_x86_64.whl
+!sudo apt-get install \
+    build-essential \
+    libboost-program-options-dev \
+    libboost-filesystem-dev \
+    libboost-graph-dev \
+    libboost-system-dev \
+    libboost-test-dev \
+    libeigen3-dev \
+    libflann-dev \
+    libfreeimage-dev \
+    libmetis-dev \
+    libgoogle-glog-dev \
+    libgflags-dev \
+    libsqlite3-dev \
+    libglew-dev \
+    qtbase5-dev \
+    libqt5opengl5-dev \
+    libcgal-dev \
+    libceres-dev
+!unzip local.zip -d /usr/
+!chmod +x /usr/local/bin/colmap
+!pip install git+https://github.com/nerfstudio-project/nerfstudio.git
+//above are packages you need
+import os
+import glob
+from google.colab import files
+from IPython.core.display import display, HTML
+
+    !mkdir -p /content/data/nerfstudio/custom_data
+    uploaded = files.upload()
+    dir = os.getcwd()
+    preupload_datasets = [os.path.join(dir, f) for f in uploaded.keys()]
+    record_3d_zipfile = preupload_datasets[0]
+    !unzip $record_3d_zipfile -d /content/data/nerfstudio/custom_data
+    custom_data_directory = glob.glob('/content/data/nerfstudio/custom_data/*')[0]//change this to your own data process
+    !ns-process-data record3d --data $custom_data_directory --output-dir /content/data/nerfstudio/custom_data/
+
+if os.path.exists(f"data/nerfstudio/{scene}/transforms.json"):
+    !ns-train nerfacto --viewer.websocket-port 7007 nerfstudio-data --data data/nerfstudio/$scene --downscale-factor 4
+else:
+    from IPython.core.display import display, HTML
+    display(HTML('<h3 style="color:red">Error: Data processing did not complete</h3>'))
+    display(HTML('<h3>Please re-run `Downloading and Processing Data`, or view the FAQ for more info.</h3>'))
+
